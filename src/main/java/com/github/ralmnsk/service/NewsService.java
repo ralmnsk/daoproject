@@ -86,4 +86,22 @@ public class NewsService extends SessionUtil implements NewsDao {
         //close session with a transaction
         closeTransactionSesstion();
     }
+
+    @Override
+    public List<News> getByName(String name) throws SQLException {
+        //open session with a transaction
+        openTransactionSession();
+
+        String sql = "SELECT * FROM newstab WHERE namenews = :name";
+
+        Session session = getSession();
+        Query query = session.createNativeQuery(sql).addEntity(News.class);
+        query.setParameter("name", name);
+
+        List<News> newsList = query.getResultList();
+
+        //close session with a transaction
+        closeTransactionSesstion();
+        return newsList;
+    }
 }

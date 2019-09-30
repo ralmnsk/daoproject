@@ -19,4 +19,6 @@ public interface NewsDao {
 
     //delete
     void remove(News news) throws SQLException;
+
+    List<News> getByName(String name) throws SQLException;
 }

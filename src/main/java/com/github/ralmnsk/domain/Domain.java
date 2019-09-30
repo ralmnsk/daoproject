@@ -8,19 +8,35 @@ import com.github.ralmnsk.service.UserService;
 import java.util.Date;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Domain {
     public static void main(String[] args){
         //userTest();
-        newsTestingAdd();
-        newsGetByIdTest();
-        newsUpdateTest();
+        newsTest();
         HibernateUtil.shutdown();
     }
 
+    public static void newsTest(){
+        newsTestingAdd();
+        newsGetByIdTest();
+        newsGetByNameTest();
+        newsUpdateTest();
+        newsDeleteTest();
+    }
+
+    public static void newsGetByNameTest(){
+        String name="testNameNews";
+        NewsService newsService=new NewsService();
+        try {
+            newsService.getByName(name).stream().forEach(System.out::println);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
 
     public static void newsTestingAdd(){
-        News news=new News(23L,"testNameNews","Test news text(data)",new Date());
+        News news=new News("testNameNews","Test news text(data)",new Date());
         NewsService newsService=new NewsService();
         try {
             newsService.add(news);
@@ -33,22 +49,51 @@ public class Domain {
         //News news=new News("testNameNews","Test news text(data)",new Date());
         NewsService newsService=new NewsService();
         try {
-            News news=newsService.getById(23L);
-            System.out.println(news);
-        } catch (SQLException e) {
+            newsService.getByName("testNameNews")
+                    .stream().map(news -> news.getIdNews())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .map(s-> {
+                        try {
+                            return newsService.getById(s);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }).forEach(System.out::println);
+         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
     public static void newsUpdateTest(){
-        News news=new News(23L,"testNameNews2","Test news text(data)2",new Date());
+        News news=new News("testNameNews2","Test news text(data)2",new Date());
         NewsService newsService=new NewsService();
         try {
+        List<News> list=newsService.getByName("testNameNews");
+        if (list.size()==1){
+            news.setIdNews(list.get(0).getIdNews());
             newsService.update(news);
+        }
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
+
+    public static void newsDeleteTest(){
+        News news=new News("testNameNews2","Test news text(data)2",new Date());
+        NewsService newsService=new NewsService();
+        try {
+            List<News> list=newsService.getByName("testNameNews2");
+            if (list.size()==1){
+                news.setIdNews(list.get(0).getIdNews());
+                newsService.remove(news);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
 //-------------------USER-----------------------------
     public static void userTest(){
         userTestingAdd();
